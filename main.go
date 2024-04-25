@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -45,7 +46,7 @@ func main() {
 		if err := c.Bind(req); err != nil {
 			return err
 		}
-		id, err := s.CreateTask(*req)
+		id, err := s.CreateTask(req)
 		if err != nil {
 			return err
 		}
@@ -59,6 +60,34 @@ func main() {
 			return err
 		}
 		return c.JSON(http.StatusOK, tasks)
+	})
+
+	e.POST("/tasks/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return err
+		}
+		req := new(app.TaskRequest)
+		if err := c.Bind(req); err != nil {
+			return err
+		}
+		err = s.UpdateTask(req, id)
+		if err != nil {
+			return err
+		}
+		return c.NoContent(http.StatusNoContent)
+	})
+
+	e.DELETE("/tasks/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return err
+		}
+		err = s.DeleteTask(id)
+		if err != nil {
+			return err
+		}
+		return c.NoContent(http.StatusNoContent)
 	})
 
 	e.Logger.Fatal(e.Start(":1234"))

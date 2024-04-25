@@ -8,8 +8,8 @@ func NewService(r *taskRepository) *taskService {
 	return &taskService{r: r}
 }
 
-func (s *taskService) CreateTask(res TaskRequest) (int, error) {
-	task := NewTask(res.Title, res.Description, res.Status)
+func (s *taskService) CreateTask(req *TaskRequest) (int, error) {
+	task := NewTask(req.Title, req.Description, req.Status)
 	id, err := s.r.InsertTask(task)
 	if err != nil {
 		return 0, err
@@ -19,12 +19,32 @@ func (s *taskService) CreateTask(res TaskRequest) (int, error) {
 }
 
 func (s *taskService) GetTasks() ([]Task, error) {
-	tasks, err := s.r.getTasks()
+	tasks, err := s.r.GetTasks()
 	if err != nil {
 		return nil, err
 	}
 
 	return tasks, nil
+}
+
+func (s *taskService) UpdateTask(res *TaskRequest, id int) error {
+	task := NewTask(res.Title, res.Description, res.Status)
+	task.ID = id
+	err := s.r.UpdateTask(task)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *taskService) DeleteTask(id int) error {
+	err := s.r.DeleteTask(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type TaskRequest struct {

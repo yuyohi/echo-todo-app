@@ -30,7 +30,7 @@ func (r *taskRepository) InsertTask(t *Task) (int, error) {
 	return int(id), nil
 }
 
-func (r *taskRepository) getTasks() ([]Task, error) {
+func (r *taskRepository) GetTasks() ([]Task, error) {
 	rows, err := r.db.Query("SELECT * FROM task")
 	if err != nil {
 		return nil, err
@@ -45,4 +45,29 @@ func (r *taskRepository) getTasks() ([]Task, error) {
 		tasks = append(tasks, t)
 	}
 	return tasks, nil
+}
+
+func (r *taskRepository) UpdateTask(t *Task) error {
+	// TODO: idが存在しないときの処理を検討する
+	stmt, err := r.db.Prepare("UPDATE task SET title = ?, description = ?, status = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(t.Title, t.Description, t.Status, t.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *taskRepository) DeleteTask(id int) error {
+	stmt, err := r.db.Prepare("DELETE FROM task WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
